@@ -1,68 +1,34 @@
 #!/usr/bin/env python3
 """
-Module for authentication
+API authentication module
 """
 
-
-from typing import List, TypeVar
 from flask import request
+from typing import List, TypeVar
 
 
 class Auth:
-    """_summary_
-    """
+    """ Authentication """
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """_summary_
-
-        Args:
-                path (str): _description_
-                excluded_paths (List[str]): _description_
-
-        Returns:
-                bool: _description_
-        """
-        if path is None:
+        """ Checks if API routes require authentication """
+        if path is None or not excluded_paths:
             return True
-
-        if excluded_paths is None or excluded_paths == []:
-            return True
-
-        if path in excluded_paths:
-            return False
-
-        for excluded_path in excluded_paths:
-            if excluded_path.startswith(path):
+        for i in excluded_paths:
+            if i.endswith('*') and path.startswith(i[:-1]):
                 return False
-            elif path.startswith(excluded_path):
+            elif i in {path, path + '/'}:
                 return False
-            elif excluded_path[-1] == "*":
-                if path.startswith(excluded_path[:-1]):
-                    return False
-
         return True
 
     def authorization_header(self, request=None) -> str:
-        """_summary_
-
-        Args:
-                request (_type_, optional): _description_. Defaults to None.
-
-        Returns:
-                str: _description_
-        """
-        if request is None:
+        """ Checks if Authorization request header is present
+        & contains values """
+        if request is None or "Authorization" not in request.headers:
             return None
-        # get header from the request
-        header = request.headers.get('Authorization')
-
-        if header is None:
-            return None
-
-        return header
+        else:
+            return request.headers.get('Authorization')
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """_summary_
-        """
-
+        """ placeholder """
         return None
